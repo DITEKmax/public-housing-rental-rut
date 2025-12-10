@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - РентХаус'">Отзывы - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+            --star-color: #fbbf24;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .review-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        .listing-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary-black);
+            text-decoration: none;
+        }
+        .listing-title:hover {
+            color: #4b5563;
+        }
+        .review-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .review-rating {
+            display: flex;
+            gap: 0.25rem;
+        }
+        .star {
+            color: var(--star-color);
+            font-size: 1rem;
+        }
+        .star-empty {
+            color: var(--border-color);
+        }
+        .review-comment {
+            font-size: 0.95rem;
+            color: var(--primary-black);
+            margin-top: 0.75rem;
+            line-height: 1.6;
+        }
+        .review-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+        }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+        }
+        .review-actions {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="page-title" th:text="${pageTitle}">Отзывы</h1>
+            <a th:href="@{/reviews/create}" class="btn btn-primary">Написать отзыв</a>
+        </div>
+    </div>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${reviews == null or reviews.isEmpty()}" class="empty-state">
+        <h4>Отзывов пока нет</h4>
+        <p>Оставьте отзыв после завершения бронирования!</p>
+        <a th:href="@{/reviews/create}" class="btn btn-primary">Написать отзыв</a>
+    </div>
+
+    <!-- Список отзывов -->
+    <div th:unless="${reviews == null or reviews.isEmpty()}">
+        <div th:each="review : ${reviews}" class="review-card">
+            <div class="review-header">
+                <div>
+                    <a th:href="@{/listings/{id}(id=${review.listing.id})}"
+                       th:text="${review.listing.title}"
+                       class="listing-title">Название объявления</a>
+                    <div class="review-info" th:if="${review.listing.address != null}">
+                        <span th:text="${review.listing.address.city}">Город</span>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <span class="star" th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
+                    <span class="star star-empty" th:each="i : ${#numbers.sequence(review.rating + 1, 5)}">★</span>
+                </div>
+            </div>
+
+            <div th:if="${review.comment != null and !review.comment.isEmpty()}" class="review-comment">
+                <span th:text="${review.comment}">Комментарий отзыва</span>
+            </div>
+
+            <div class="review-meta">
+                <span>
+                    Автор: <span th:text="${review.guest.firstName + ' ' + review.guest.lastName}">Имя Фамилия</span>
+                </span>
+                <span>
+                    Дата: <span th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy')}">01.01.2024</span>
+                </span>
+            </div>
+
+            <!-- Кнопка удаления для администратора -->
+            <div th:if="${isAdmin}" class="review-actions">
+                <form th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Удалить отзыв</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

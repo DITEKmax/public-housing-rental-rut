@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Избранное - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .listing-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            height: 100%;
+            transition: all 0.2s;
+        }
+        .listing-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .listing-image {
+            background-color: #e5e5e5;
+            height: 180px;
+        }
+        .listing-body {
+            padding: 1rem;
+        }
+        .listing-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary-black);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .listing-title:hover {
+            color: #4b5563;
+        }
+        .listing-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .listing-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-black);
+        }
+        .listing-price span {
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .badge-type {
+            background-color: var(--bg-light);
+            color: var(--primary-black);
+            font-weight: 500;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+        }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .btn-remove {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+        .btn-remove:hover {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Избранное</h1>
+    </div>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${favorites == null or favorites.isEmpty()}" class="empty-state">
+        <h4>Здесь пока пусто</h4>
+        <p>Добавляйте понравившиеся объявления в избранное!</p>
+        <a href="/listings" class="btn btn-primary">Найти жильё</a>
+    </div>
+
+    <!-- Список избранного -->
+    <div class="row g-4" th:unless="${favorites == null or favorites.isEmpty()}">
+        <div class="col-md-6 col-lg-4" th:each="favorite : ${favorites}">
+            <div class="listing-card">
+                <div class="listing-image"></div>
+                <div class="listing-body">
+                    <a th:href="@{/listings/{id}(id=${favorite.listingId})}"
+                       th:text="${favorite.title}" class="listing-title">
+                        Название
+                    </a>
+
+                    <p class="listing-info" th:text="${favorite.city + (favorite.district != null ? ', ' + favorite.district : '')}">
+                        Город, Район
+                    </p>
+
+                    <span class="badge-type" th:if="${favorite.propertyType}" th:text="${favorite.propertyType}">Тип</span>
+
+                    <p class="listing-info mt-2" th:text="${favorite.description}" style="
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                    ">
+                        Описание...
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="listing-price">
+                            <span th:text="${#numbers.formatDecimal(favorite.pricePerNight, 0, 'COMMA', 0, 'POINT')}">5500</span> ₽<span>/ночь</span>
+                        </div>
+                        <form th:action="@{'/favorites/remove/' + ${favorite.listingId}}" method="post" class="d-inline">
+                            <button type="submit" class="btn-remove">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка найти еще -->
+    <div th:unless="${favorites == null or favorites.isEmpty()}" class="text-center mt-4 mb-5">
+        <a href="/listings" class="btn btn-outline-dark">Найти ещё жильё</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

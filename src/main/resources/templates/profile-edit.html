@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование профиля - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-outline-dark:hover {
+            background-color: var(--bg-light);
+            border-color: var(--border-color);
+            color: var(--primary-black);
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .edit-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #fff;
+            max-width: 600px;
+        }
+        .edit-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .edit-card-header h5 {
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-black);
+        }
+        .edit-card-body {
+            padding: 1.5rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary-black);
+            box-shadow: none;
+        }
+        .form-control:disabled {
+            background-color: var(--bg-light);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .text-danger {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link active" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Редактирование профиля</h1>
+    </div>
+
+    <!-- Сообщения об ошибках -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" style="max-width: 600px;">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="edit-card mb-5">
+        <div class="edit-card-header">
+            <h5>Личная информация</h5>
+        </div>
+        <div class="edit-card-body">
+            <form th:action="@{/profile/edit}" method="post" th:object="${updateDto}">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email"
+                           th:value="${profile.email}" disabled>
+                    <small class="text-muted">Email нельзя изменить</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Имя</label>
+                    <input type="text" class="form-control"
+                           th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+                           id="firstName" name="firstName"
+                           th:value="${profile.firstName}"
+                           placeholder="Введите имя">
+                    <small th:if="${#fields.hasErrors('firstName')}"
+                           th:errors="*{firstName}" class="text-danger"></small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control"
+                           th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+                           id="lastName" name="lastName"
+                           th:value="${profile.lastName}"
+                           placeholder="Введите фамилию">
+                    <small th:if="${#fields.hasErrors('lastName')}"
+                           th:errors="*{lastName}" class="text-danger"></small>
+                </div>
+
+                <div class="mb-4">
+                    <label for="phone" class="form-label">Телефон</label>
+                    <input type="tel" class="form-control"
+                           th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                           id="phone" name="phone"
+                           th:value="${profile.phone}"
+                           placeholder="+7 999 123-45-67">
+                    <small th:if="${#fields.hasErrors('phone')}"
+                           th:errors="*{phone}" class="text-danger"></small>
+                    <small th:unless="${#fields.hasErrors('phone')}" class="text-muted">
+                        Формат: +7 999 123-45-67 или 89991234567
+                    </small>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/profile" class="btn btn-outline-dark">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронирования объявления</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            color: #000000 !important;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .nav-link {
+            color: #000000 !important;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .nav-link:hover {
+            color: #666666 !important;
+        }
+
+        .btn-logout {
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-logout:hover {
+            background-color: #f5f5f5;
+        }
+
+        .btn-secondary-custom {
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #e0e0e0;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: #f5f5f5;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #000000;
+        }
+
+        .stat-card small {
+            color: #666666;
+        }
+
+        .table-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #000000;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge-status {
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .badge-confirmed {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .badge-pending {
+            background-color: #f5f5f5;
+            color: #000000;
+            border: 1px solid #e0e0e0;
+        }
+
+        .badge-cancelled {
+            background-color: #999999;
+            color: #ffffff;
+        }
+
+        .badge-id {
+            background-color: #f5f5f5;
+            color: #000000;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация владельца -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/owner/listings">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/owner/listings">Мои объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/owner/listings/new">Добавить объект</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-logout">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 style="font-weight: 600; margin-bottom: 0.5rem;">Бронирования</h1>
+            <p class="text-muted mb-0">
+                Объявление: <strong th:text="${listingTitle}">Название</strong>
+            </p>
+        </div>
+        <a th:href="@{'/owner/listings/' + ${listingId}}" class="btn btn-secondary-custom">
+            Назад к объявлению
+        </a>
+    </div>
+
+    <!-- Статистика бронирований -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <h4 th:text="${bookings.size()}">0</h4>
+                <small>Всего бронирований</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <h4 th:text="${#lists.size(bookings.?[status.name() == 'CONFIRMED'])}">0</h4>
+                <small>Подтверждённых</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <h4 th:text="${#lists.size(bookings.?[status.name() == 'PENDING'])}">0</h4>
+                <small>Ожидающих</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <h4 th:text="${#lists.size(bookings.?[status.name() == 'CANCELLED'])}">0</h4>
+                <small>Отменённых</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${bookings == null or bookings.isEmpty()}" class="alert alert-info text-center py-5">
+        <h4 style="font-weight: 600;">Бронирований пока нет</h4>
+        <p class="mb-0">Когда арендаторы забронируют это жильё, здесь появится список бронирований</p>
+    </div>
+
+    <!-- Таблица бронирований -->
+    <div class="table-card" th:unless="${bookings == null or bookings.isEmpty()}">
+        <h5 style="font-weight: 600; margin-bottom: 1.5rem;">Список бронирований</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Арендатор</th>
+                    <th>Даты</th>
+                    <th>Ночей</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Создано</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking : ${bookings}">
+                    <td>
+                        <span class="badge-id" th:text="'#' + ${booking.id}">ID</span>
+                    </td>
+                    <td>
+                        <div>
+                            <strong th:text="${booking.renterName}">Имя арендатора</strong>
+                        </div>
+                        <small class="text-muted" th:text="${booking.renterEmail}">email@example.com</small>
+                        <div th:if="${booking.renterPhone}">
+                            <small class="text-muted" th:text="${booking.renterPhone}">+7...</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span th:text="${#temporals.format(booking.startDate, 'dd.MM.yyyy')}">01.01</span>
+                        —
+                        <span th:text="${#temporals.format(booking.endDate, 'dd.MM.yyyy')}">05.01</span>
+                    </td>
+                    <td th:text="${booking.nights}">0</td>
+                    <td>
+                        <strong th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₽'">0 ₽</strong>
+                    </td>
+                    <td>
+                            <span class="badge-status"
+                                  th:classappend="${booking.status.name() == 'CONFIRMED' ? 'badge-confirmed' :
+                                                  (booking.status.name() == 'PENDING' ? 'badge-pending' :
+                                                  'badge-cancelled')}"
+                                  th:text="${booking.status.name() == 'CONFIRMED' ? 'Подтверждено' :
+                                           (booking.status.name() == 'PENDING' ? 'Ожидает' :
+                                           (booking.status.name() == 'CANCELLED' ? 'Отменено' : booking.status.name()))}">
+                                Статус
+                            </span>
+                    </td>
+                    <td>
+                        <small th:if="${booking.createdAt != null}"
+                               th:text="${#temporals.format(booking.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024</small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Кнопка назад -->
+    <div class="mt-4 mb-5">
+        <a href="/owner/listings" class="btn btn-secondary-custom">К моим объявлениям</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

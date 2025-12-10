@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>РентХаус - Аренда жилья</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+        }
+        .nav-link:hover {
+            color: #4b5563 !important;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            padding: 0.625rem 1.5rem;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            padding: 0.625rem 1.5rem;
+            font-weight: 500;
+        }
+        .btn-outline-dark:hover {
+            background-color: var(--bg-light);
+            border-color: var(--border-color);
+            color: var(--primary-black);
+        }
+        .hero-section {
+            padding: 4rem 0;
+            text-align: center;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-black);
+        }
+        .hero-section p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .search-box {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .search-box .form-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .search-box .form-control,
+        .search-box .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+        }
+        .search-box .form-control:focus,
+        .search-box .form-select:focus {
+            border-color: var(--primary-black);
+            box-shadow: none;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-black);
+        }
+        .city-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: #fff;
+        }
+        .city-card:hover {
+            border-color: var(--primary-black);
+        }
+        .city-card h5 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-black);
+        }
+        .city-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        .listing-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            height: 100%;
+        }
+        .listing-card-image {
+            background-color: #e5e5e5;
+            height: 180px;
+        }
+        .listing-card-body {
+            padding: 1rem;
+        }
+        .listing-card h5 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: var(--primary-black);
+        }
+        .listing-card .listing-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .listing-card .listing-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-black);
+        }
+        .listing-card .listing-price span {
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .footer {
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        .footer p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('GUEST')">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('GUEST')">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reviews}">Отзывы</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('OWNER')">
+                    <a class="nav-link" th:href="@{/owner/listings}">Мои объекты</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('OWNER')">
+                    <a class="nav-link" th:href="@{/owner/listings/new}">Разместить</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin}">Админ-панель</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item" sec:authorize="hasRole('GUEST')">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item me-2" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-outline-dark" th:href="@{/auth/login}">Войти</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-primary" th:href="@{/auth/register}">Регистрация</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Главная секция -->
+<section class="hero-section">
+    <div class="container">
+        <h1>Найдите идеальное жильё для аренды</h1>
+        <p>Тысячи проверенных объектов недвижимости в вашем городе</p>
+
+        <!-- Форма поиска -->
+        <div class="search-box">
+            <form th:action="@{/listings}" method="get">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Город</label>
+                        <input type="text" class="form-control" name="city" placeholder="Выберите город">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Тип жилья</label>
+                        <select class="form-select" name="type">
+                            <option value="">Любой тип</option>
+                            <option value="APARTMENT">Квартира</option>
+                            <option value="HOUSE">Дом</option>
+                            <option value="ROOM">Комната</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Цена от</label>
+                        <input type="number" class="form-control" name="minPrice" placeholder="10 000 ₽">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Цена до</label>
+                        <input type="number" class="form-control" name="maxPrice" placeholder="100 000 ₽">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Найти жильё</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные направления -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title">Популярные направления</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <a th:href="@{/listings(city='Москва')}" class="text-decoration-none">
+                    <div class="city-card">
+                        <h5>Москва</h5>
+                        <p>1,234 объекта</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a th:href="@{/listings(city='Санкт-Петербург')}" class="text-decoration-none">
+                    <div class="city-card">
+                        <h5>Санкт-Петербург</h5>
+                        <p>856 объектов</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a th:href="@{/listings(city='Екатеринбург')}" class="text-decoration-none">
+                    <div class="city-card">
+                        <h5>Екатеринбург</h5>
+                        <p>432 объекта</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Рекомендуемые предложения -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title">Рекомендуемые предложения</h2>
+        <div class="row g-4">
+            <div class="col-md-4" th:each="listing : ${listings}">
+                <div class="listing-card">
+                    <div class="listing-card-image"></div>
+                    <div class="listing-card-body">
+                        <h5 th:text="${listing.title}">Уютная квартира в центре</h5>
+                        <p class="listing-info" th:text="${listing.city + (listing.district != null ? ', ' + listing.district : '')}">Москва, Центральный район</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="listing-price">
+                                <span th:text="${#numbers.formatDecimal(listing.pricePerNight, 0, 'COMMA', 0, 'POINT')}">45 000</span> ₽<span>/мес</span>
+                            </div>
+                            <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-primary btn-sm">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/listings}" class="btn btn-outline-dark">Все объявления</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container text-center">
+        <p>© 2024 РентХаус. Все права защищены.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

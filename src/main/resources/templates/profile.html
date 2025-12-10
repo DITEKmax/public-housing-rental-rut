@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .profile-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #fff;
+        }
+        .profile-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .profile-card-header h5 {
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-black);
+        }
+        .profile-card-body {
+            padding: 1.5rem;
+        }
+        .profile-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+        .profile-label {
+            width: 150px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .profile-value {
+            flex: 1;
+            color: var(--primary-black);
+        }
+        .badge-role {
+            background-color: var(--bg-light);
+            color: var(--primary-black);
+            font-weight: 500;
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+        }
+        .stats-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #fff;
+            margin-bottom: 1rem;
+        }
+        .stats-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .stats-card-header h5 {
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-black);
+        }
+        .stats-card-body {
+            padding: 1.5rem;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+        }
+        .stat-label {
+            color: var(--text-muted);
+        }
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-black);
+        }
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--primary-black);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background-color: var(--bg-light);
+            color: var(--primary-black);
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .link-edit {
+            color: var(--primary-black);
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+        .link-edit:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link active" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Мой профиль</h1>
+    </div>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row mb-5">
+        <!-- Основная информация -->
+        <div class="col-md-8">
+            <div class="profile-card mb-4">
+                <div class="profile-card-header">
+                    <h5>Личная информация</h5>
+                    <a href="/profile/edit" class="link-edit">Редактировать</a>
+                </div>
+                <div class="profile-card-body">
+                    <div class="profile-row">
+                        <div class="profile-label">Email:</div>
+                        <div class="profile-value" th:text="${profile.email}">email@example.com</div>
+                    </div>
+                    <div class="profile-row">
+                        <div class="profile-label">Имя:</div>
+                        <div class="profile-value" th:text="${profile.firstName}">Имя</div>
+                    </div>
+                    <div class="profile-row">
+                        <div class="profile-label">Фамилия:</div>
+                        <div class="profile-value" th:text="${profile.lastName}">Фамилия</div>
+                    </div>
+                    <div class="profile-row">
+                        <div class="profile-label">Телефон:</div>
+                        <div class="profile-value" th:text="${profile.phone != null ? profile.phone : 'Не указан'}">+7 999 123-45-67</div>
+                    </div>
+                    <div class="profile-row">
+                        <div class="profile-label">Роль:</div>
+                        <div class="profile-value">
+                            <span class="badge-role">Арендатор</span>
+                        </div>
+                    </div>
+                    <div class="profile-row">
+                        <div class="profile-label">Дата регистрации:</div>
+                        <div class="profile-value" th:text="${#temporals.format(profile.createdAt, 'dd.MM.yyyy')}">01.01.2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика и действия -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-card-header">
+                    <h5>Статистика</h5>
+                </div>
+                <div class="stats-card-body">
+                    <div class="stat-row">
+                        <span class="stat-label">Бронирований:</span>
+                        <span class="stat-value" th:text="${profile.totalBookings}">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">В избранном:</span>
+                        <span class="stat-value" th:text="${profile.favoritesCount}">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-card-header">
+                    <h5>Быстрые действия</h5>
+                </div>
+                <div class="stats-card-body">
+                    <a href="/bookings/history" class="action-btn">История бронирований</a>
+                    <a href="/favorites" class="action-btn">Избранное</a>
+                    <a href="/listings" class="action-btn">Найти жильё</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

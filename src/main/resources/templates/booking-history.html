@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои бронирования - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .booking-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+        .booking-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary-black);
+            text-decoration: none;
+        }
+        .booking-title:hover {
+            color: #4b5563;
+        }
+        .booking-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .booking-dates {
+            font-size: 0.875rem;
+            color: var(--primary-black);
+        }
+        .booking-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-black);
+        }
+        .badge-status {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-confirmed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .badge-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+        }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .btn-cancel {
+            color: var(--danger);
+            font-size: 0.875rem;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        .btn-cancel:hover {
+            text-decoration: underline;
+        }
+        .btn-review {
+            background-color: var(--primary-black);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-review:hover {
+            background-color: #2a2a2a;
+            color: white;
+        }
+        .badge-reviewed {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .table {
+            margin: 0;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            padding: 1rem;
+            background-color: var(--bg-light);
+        }
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        .card-body {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Мои бронирования</h1>
+    </div>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${bookings == null or bookings.isEmpty()}" class="empty-state">
+        <h4>У вас пока нет бронирований</h4>
+        <p>Забронируйте понравившееся жильё на нашем сайте!</p>
+        <a href="/listings" class="btn btn-primary">Найти жильё</a>
+    </div>
+
+    <!-- Список бронирований -->
+    <div th:unless="${bookings == null or bookings.isEmpty()}" class="card mb-5">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Объявление</th>
+                        <th>Город</th>
+                        <th>Даты</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Отзыв</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking : ${bookings}">
+                        <td>
+                            <span th:text="'#' + ${booking.id}">#1</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/listings/{id}(id=${booking.listingId})}"
+                               th:text="${booking.listingTitle}"
+                               class="booking-title">Название</a>
+                        </td>
+                        <td class="booking-info" th:text="${booking.city}">Город</td>
+                        <td class="booking-dates">
+                            <span th:text="${#temporals.format(booking.startDate, 'dd.MM.yyyy')}">01.01</span>
+                            –
+                            <span th:text="${#temporals.format(booking.endDate, 'dd.MM.yyyy')}">05.01</span>
+                        </td>
+                        <td class="booking-price">
+                            <span th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₽'">0 ₽</span>
+                        </td>
+                        <td>
+                            <span class="badge-status badge-confirmed"
+                                  th:if="${booking.status.name() == 'CONFIRMED'}">Подтверждено</span>
+                            <span class="badge-status badge-pending"
+                                  th:if="${booking.status.name() == 'PENDING'}">Ожидает</span>
+                            <span class="badge-status badge-cancelled"
+                                  th:if="${booking.status.name() == 'CANCELLED'}">Отменено</span>
+                        </td>
+                        <td>
+                            <span class="badge-reviewed" th:if="${booking.hasReview}">Отзыв оставлен</span>
+                            <a th:if="${booking.canLeaveReview}"
+                               th:href="@{/reviews/create(bookingId=${booking.id})}"
+                               class="btn-review btn-sm">
+                                Оставить отзыв
+                            </a>
+                            <span th:if="${!booking.hasReview and !booking.canLeaveReview}"
+                                  class="text-muted"
+                                  style="font-size: 0.875rem;">—</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/listings/{id}(id=${booking.listingId})}"
+                                   class="btn btn-outline-dark btn-sm">Просмотр</a>
+                                <form th:if="${booking.status.name() == 'CONFIRMED' or booking.status.name() == 'PENDING'}"
+                                      th:action="@{/bookings/{id}/cancel(id=${booking.id})}"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit" class="btn-cancel">Отменить</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка найти еще -->
+    <div th:unless="${bookings == null or bookings.isEmpty()}" class="mb-5">
+        <a href="/listings" class="btn btn-outline-dark">Найти ещё жильё</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

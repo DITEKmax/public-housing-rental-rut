@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Написать отзыв - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+            --star-color: #fbbf24;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-header {
+            padding: 2rem 0;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .form-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            background: #fff;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 0.625rem 0.875rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-black);
+            box-shadow: 0 0 0 0.2rem rgba(26, 26, 26, 0.1);
+        }
+        .booking-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-light);
+        }
+        .booking-title {
+            font-weight: 600;
+            color: var(--primary-black);
+        }
+        .booking-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .star-input {
+            display: none;
+        }
+        .star-label {
+            font-size: 2rem;
+            color: var(--border-color);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .star-input:checked ~ .star-label,
+        .star-label:hover,
+        .star-label:hover ~ .star-label {
+            color: var(--star-color);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+        }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .rating-container {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/favorites}">Избранное</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bookings/history}">Мои бронирования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/reviews}">Отзывы</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Написать отзыв</h1>
+    </div>
+
+    <!-- Сообщения -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${bookings == null or bookings.isEmpty()}" class="empty-state">
+        <h4>Нет доступных бронирований для отзыва</h4>
+        <p>Вы можете оставить отзыв только после завершения бронирования</p>
+        <a th:href="@{/bookings/history}" class="btn btn-outline-dark">Мои бронирования</a>
+    </div>
+
+    <!-- Форма создания отзыва -->
+    <div th:unless="${bookings == null or bookings.isEmpty()}" class="form-card">
+        <form th:action="@{/reviews/create}" method="post">
+            <div class="mb-4">
+                <label for="bookingId" class="form-label">Выберите бронирование</label>
+                <select class="form-select" id="bookingId" name="bookingId" required>
+                    <option value="">-- Выберите бронирование --</option>
+                    <option th:each="booking : ${bookings}"
+                            th:value="${booking.id}"
+                            th:selected="${selectedBookingId != null and selectedBookingId == booking.id}"
+                            th:text="${booking.listing.title + ' (' + #temporals.format(booking.startDate, 'dd.MM.yyyy') + ' - ' + #temporals.format(booking.endDate, 'dd.MM.yyyy') + ')'}">
+                        Название (даты)
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Оценка</label>
+                <div class="rating-container">
+                    <input type="radio" id="star5" name="rating" value="5" class="star-input" required>
+                    <label for="star5" class="star-label">★</label>
+
+                    <input type="radio" id="star4" name="rating" value="4" class="star-input">
+                    <label for="star4" class="star-label">★</label>
+
+                    <input type="radio" id="star3" name="rating" value="3" class="star-input">
+                    <label for="star3" class="star-label">★</label>
+
+                    <input type="radio" id="star2" name="rating" value="2" class="star-input">
+                    <label for="star2" class="star-label">★</label>
+
+                    <input type="radio" id="star1" name="rating" value="1" class="star-input">
+                    <label for="star1" class="star-label">★</label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="comment" class="form-label">Комментарий (необязательно)</label>
+                <textarea class="form-control" id="comment" name="comment" rows="4"
+                          placeholder="Поделитесь своими впечатлениями о проживании..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Опубликовать отзыв</button>
+                <a th:href="@{/reviews}" class="btn btn-outline-dark">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

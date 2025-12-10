@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${listing.title}">Детали Объявления - РентХаус</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --border-color: #e5e5e5;
+            --text-muted: #6b7280;
+            --bg-light: #f9fafb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff;
+        }
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-black) !important;
+        }
+        .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+        .btn-outline-dark {
+            border-color: var(--border-color);
+            color: var(--primary-black);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .breadcrumb {
+            background: none;
+            padding: 1rem 0;
+            margin: 0;
+        }
+        .breadcrumb-item a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .breadcrumb-item.active {
+            color: var(--primary-black);
+        }
+        .main-image {
+            background-color: #e5e5e5;
+            height: 400px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        .thumbnail-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 60px;
+            background-color: #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .section-box {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #fff;
+        }
+        .listing-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .listing-location {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .listing-rating {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .listing-description {
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-black);
+            margin-bottom: 1rem;
+        }
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        .amenity-item::before {
+            content: "✓";
+            margin-right: 0.5rem;
+            color: var(--primary-black);
+        }
+        .characteristic-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .characteristic-row:last-child {
+            border-bottom: none;
+        }
+        .characteristic-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .characteristic-value {
+            font-weight: 500;
+            color: var(--primary-black);
+        }
+        .booking-box {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 2rem;
+        }
+        .price-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-black);
+        }
+        .price-display span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+        .form-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--primary-black);
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary-black);
+            box-shadow: none;
+        }
+        .price-breakdown {
+            margin: 1rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+        .price-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            color: var(--primary-black);
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .owner-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1rem;
+        }
+        .owner-avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #e5e5e5;
+            border-radius: 50%;
+        }
+        .owner-name {
+            font-weight: 600;
+            color: var(--primary-black);
+        }
+        .owner-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .map-placeholder {
+            background-color: #e5e5e5;
+            height: 200px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        .review-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--primary-black);
+        }
+        .review-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .review-rating {
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+        .review-text {
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">РентХаус</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/listings}">Объявления</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-2" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-outline-dark" th:href="@{/auth/login}">Войти</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-primary" th:href="@{/auth/register}">Регистрация</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/auth/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-dark">Выход</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/listings}">Результаты поиска</a></li>
+            <li class="breadcrumb-item active" th:text="${listing.title}">Название</li>
+        </ol>
+    </nav>
+
+    <!-- Сообщения -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row">
+        <!-- Левая колонка - информация -->
+        <div class="col-lg-8">
+            <!-- Главное изображение -->
+            <div class="main-image"></div>
+            <div class="thumbnail-row">
+                <div class="thumbnail"></div>
+                <div class="thumbnail"></div>
+                <div class="thumbnail"></div>
+                <div class="thumbnail"></div>
+            </div>
+
+            <!-- Информация об объекте -->
+            <div class="section-box">
+                <h1 class="listing-title" th:text="${listing.title}">Уютная квартира в центре города</h1>
+                <p class="listing-location" th:text="${listing.city + (listing.district != null ? ', ' + listing.district : '')}">Центральный район</p>
+
+                <!-- ИСПРАВЛЕНО: Используем reviews.size() вместо reviewCount -->
+                <p class="listing-rating" th:if="${listing.averageRating != null and listing.averageRating > 0}">
+                    ★ <span th:text="${#numbers.formatDecimal(listing.averageRating, 1, 1)}">4.8</span>
+                    (<span th:text="${listing.reviews != null ? listing.reviews.size() : 0}">24</span> отзыва)
+                </p>
+
+                <p class="listing-description" th:text="${listing.description}">
+                    Просторная двухкомнатная квартира в самом центре города. Полностью меблирована и оборудована всем необходимым для комфортного проживания.
+                </p>
+
+                <!-- Удобства - показываем только если есть данные -->
+                <!-- ИСПРАВЛЕНО: Секция удобств показывается только если есть хотя бы одно удобство -->
+                <div th:if="${listing.hasWifi != null or listing.hasWashingMachine != null or listing.hasParking != null or listing.hasKitchen != null or listing.hasAirConditioning != null or listing.hasBalcony != null}">
+                    <h3 class="section-title">Удобства</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="amenity-item" th:if="${listing.hasWifi}">Wi-Fi</div>
+                            <div class="amenity-item" th:if="${listing.hasWashingMachine}">Стиральная машина</div>
+                            <div class="amenity-item" th:if="${listing.hasParking}">Парковка</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="amenity-item" th:if="${listing.hasKitchen}">Кухня</div>
+                            <div class="amenity-item" th:if="${listing.hasAirConditioning}">Кондиционер</div>
+                            <div class="amenity-item" th:if="${listing.hasBalcony}">Балкон</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Характеристики -->
+                <h3 class="section-title">Характеристики</h3>
+                <div class="characteristic-row" th:if="${listing.area != null}">
+                    <span class="characteristic-label">Площадь</span>
+                    <span class="characteristic-value" th:text="${listing.area + ' м²'}">65 м²</span>
+                </div>
+                <div class="characteristic-row">
+                    <span class="characteristic-label">Комнаты</span>
+                    <!-- ИСПРАВЛЕНО: Используем roomCount вместо rooms -->
+                    <span class="characteristic-value" th:text="${listing.roomCount != null ? listing.roomCount : 'Не указано'}">2</span>
+                </div>
+                <div class="characteristic-row">
+                    <span class="characteristic-label">Этаж</span>
+                    <span class="characteristic-value" th:text="${listing.floor != null ? (listing.floor + (listing.totalFloors != null ? ' из ' + listing.totalFloors : '')) : 'Не указан'}">3 из 9</span>
+                </div>
+                <div class="characteristic-row">
+                    <span class="characteristic-label">Год постройки</span>
+                    <!-- ИСПРАВЛЕНО: Используем constructionYear вместо yearBuilt -->
+                    <span class="characteristic-value" th:text="${listing.constructionYear != null ? listing.constructionYear : 'Не указан'}">2018</span>
+                </div>
+                <div class="characteristic-row" th:if="${listing.propertyType != null}">
+                    <span class="characteristic-label">Тип жилья</span>
+                    <span class="characteristic-value" th:text="${listing.propertyType}">Квартира</span>
+                </div>
+                <div class="characteristic-row" th:if="${listing.rules != null and !listing.rules.isEmpty()}">
+                    <span class="characteristic-label">Правила проживания</span>
+                    <span class="characteristic-value" th:text="${listing.rules}">Без животных</span>
+                </div>
+            </div>
+
+            <!-- Расположение -->
+            <div class="section-box">
+                <h3 class="section-title">Расположение</h3>
+                <div class="map-placeholder">Карта</div>
+            </div>
+
+            <!-- Отзывы -->
+            <div class="section-box" th:if="${listing.reviews != null and !listing.reviews.isEmpty()}">
+                <h3 class="section-title">Отзывы гостей</h3>
+                <div th:each="review : ${listing.reviews}" class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name" th:text="${review.guestName}">Михаил К.</span>
+                        <span class="review-date" th:text="${review.reviewDate}">Декабрь 2023</span>
+                    </div>
+                    <div class="review-rating">
+                        <!-- Динамические звезды на основе рейтинга -->
+                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
+                        <span th:each="i : ${#numbers.sequence(review.rating + 1, 5)}" style="color: #d1d5db;">★</span>
+                    </div>
+                    <p class="review-text" th:text="${review.comment}">
+                        Отличная квартира в самом центре! Всё очень чисто и аккуратно.
+                    </p>
+                </div>
+                <a href="#" class="btn btn-outline-dark">Показать все отзывы</a>
+            </div>
+        </div>
+
+        <!-- Правая колонка - бронирование -->
+        <div class="col-lg-4">
+            <div class="booking-box">
+                <div class="price-display">
+                    ₽<span th:text="${#numbers.formatDecimal(listing.pricePerNight, 0, 'COMMA', 0, 'POINT')}">3,500</span> <span>/ ночь</span>
+                </div>
+
+                <!-- Форма бронирования для арендаторов -->
+                <div th:if="${!listing.currentUserOwner}" sec:authorize="hasRole('GUEST')">
+                    <form th:action="@{/bookings}" method="post" class="mt-3">
+                        <input type="hidden" name="listingId" th:value="${listing.id}" />
+
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">Заезд</label>
+                            <input type="date" id="startDate" name="startDate" class="form-control"
+                                   th:value="${param.startDate != null ? param.startDate[0] : ''}" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">Выезд</label>
+                            <input type="date" id="endDate" name="endDate" class="form-control"
+                                   th:value="${param.endDate != null ? param.endDate[0] : ''}" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="guests" class="form-label">Гости</label>
+                            <select id="guests" class="form-control">
+                                <option>1 гость</option>
+                                <option>2 гостя</option>
+                                <option>3 гостя</option>
+                                <option>4+ гостя</option>
+                            </select>
+                        </div>
+
+                        <div class="price-breakdown">
+                            <div class="price-row" id="nightsRow">
+                                <span id="nightsText">₽<span th:text="${#numbers.formatDecimal(listing.pricePerNight, 0, 'COMMA', 0, 'POINT')}">3,500</span> × <span id="nightsCount">0</span> ночей</span>
+                                <span id="subtotalPrice">₽0</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Сервисный сбор (5%)</span>
+                                <span id="serviceFee">₽0</span>
+                            </div>
+                            <div class="price-total">
+                                <span>Итого</span>
+                                <span id="totalPrice">₽0</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Забронировать</button>
+                        <p class="text-center text-muted mt-2" style="font-size: 0.75rem;">
+                            В случае отмены сервисный сбор не возвращается
+                        </p>
+                    </form>
+
+                    <!-- Избранное -->
+                    <form th:if="${!listing.favorite}" th:action="@{'/favorites/add/' + ${listing.id}}" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-outline-dark w-100">Добавить в избранное</button>
+                    </form>
+                    <form th:if="${listing.favorite}" th:action="@{'/favorites/remove/' + ${listing.id}}" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-outline-dark w-100">Удалить из избранного</button>
+                    </form>
+                </div>
+
+                <!-- Владелец -->
+                <div class="owner-box">
+                    <div class="owner-avatar"></div>
+                    <div>
+                        <div class="owner-name" th:text="${listing.ownerFullName}">Анна Петрова</div>
+                        <div class="owner-info" th:if="${listing.ownerRating != null and listing.ownerRating > 0}">
+                            Рейтинг: ★ <span th:text="${#numbers.formatDecimal(listing.ownerRating, 1, 1)}">4.5</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline-dark w-100">Связаться с хозяином</button>
+
+                <!-- Для владельца объекта -->
+                <div th:if="${listing.currentUserOwner}" sec:authorize="hasRole('OWNER')" class="mt-3">
+                    <p class="text-muted small">Это ваше объявление</p>
+                    <a th:href="@{'/owner/listings/' + ${listing.id}}" class="btn btn-outline-dark w-100 mb-2">Статистика</a>
+                    <a th:href="@{'/owner/listings/' + ${listing.id} + '/edit'}" class="btn btn-outline-dark w-100 mb-2">Редактировать</a>
+                    <a th:href="@{'/owner/listings/' + ${listing.id} + '/bookings'}" class="btn btn-outline-dark w-100">Бронирования</a>
+                </div>
+
+                <!-- Для неавторизованных -->
+                <div sec:authorize="!isAuthenticated()" class="mt-3">
+                    <p class="text-muted small text-center">Войдите, чтобы забронировать</p>
+                    <a href="/auth/login" class="btn btn-primary w-100 mb-2">Войти</a>
+                    <a href="/auth/register" class="btn btn-outline-dark w-100">Регистрация</a>
+                </div>
+
+                <!-- Для владельцев и админов -->
+                <div sec:authorize="hasRole('OWNER') and !hasRole('GUEST')" th:unless="${listing.currentUserOwner}" class="mt-3">
+                    <p class="text-muted small">Как владелец, вы можете только просматривать объявления.</p>
+                </div>
+
+                <div sec:authorize="hasRole('ADMIN')" class="mt-3">
+                    <a th:href="@{/admin/listings}" class="btn btn-outline-dark w-100">Управление объявлениями</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Получаем ID объявления
+    const listingId = /*[[${listing.id}]]*/ 0;
+
+    function formatPrice(price) {
+        return '₽' + price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function resetPrices() {
+        document.getElementById('nightsCount').textContent = '0';
+        document.getElementById('subtotalPrice').textContent = '₽0';
+        document.getElementById('serviceFee').textContent = '₽0';
+        document.getElementById('totalPrice').textContent = '₽0';
+    }
+
+    function calculatePrice() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            resetPrices();
+            return;
+        }
+
+        // Вызываем API на сервере для расчета цены
+        const url = '/bookings/calculate-price?listingId=' + listingId +
+                    '&startDate=' + startDate +
+                    '&endDate=' + endDate;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка расчета цены');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Обновляем DOM с данными от сервера
+                document.getElementById('nightsCount').textContent = data.nights;
+                document.getElementById('subtotalPrice').textContent = formatPrice(data.subtotal);
+                document.getElementById('serviceFee').textContent = formatPrice(data.serviceFee);
+                document.getElementById('totalPrice').textContent = formatPrice(data.total);
+            })
+            .catch(error => {
+                console.error('Ошибка при расчете цены:', error);
+                resetPrices();
+            });
+    }
+
+    // Добавляем обработчики событий
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        if (startDateInput && endDateInput) {
+            // Устанавливаем минимальную дату на сегодня
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.setAttribute('min', today);
+            endDateInput.setAttribute('min', today);
+
+            // Обработчики изменения дат
+            startDateInput.addEventListener('change', function() {
+                // Обновляем минимальную дату для выезда
+                const startDate = this.value;
+                if (startDate) {
+                    const minEndDate = new Date(startDate);
+                    minEndDate.setDate(minEndDate.getDate() + 1);
+                    endDateInput.setAttribute('min', minEndDate.toISOString().split('T')[0]);
+                }
+                calculatePrice();
+            });
+
+            endDateInput.addEventListener('change', calculatePrice);
+
+            // Если даты уже заполнены (пришли из URL), рассчитываем цену
+            if (startDateInput.value && endDateInput.value) {
+                calculatePrice();
+            }
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
