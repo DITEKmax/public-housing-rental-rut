@@ -13,8 +13,9 @@ import com.max.rental.repositories.FavoriteRepository;
 import com.max.rental.repositories.ListingRepository;
 import com.max.rental.repositories.ReviewRepository;
 import com.max.rental.security.CurrentUserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,16 +23,31 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ListingService {
+
+    private static final Logger log = LoggerFactory.getLogger(ListingService.class);
 
     private final ListingRepository listingRepository;
     private final ReviewRepository reviewRepository;
     private final FavoriteRepository favoriteRepository;
     private final BookingRepository bookingRepository;
     private final CurrentUserService currentUserService;
+    private final ModelMapper modelMapper;
+
+    public ListingService(ListingRepository listingRepository,
+                          ReviewRepository reviewRepository,
+                          FavoriteRepository favoriteRepository,
+                          BookingRepository bookingRepository,
+                          CurrentUserService currentUserService,
+                          ModelMapper modelMapper) {
+        this.listingRepository = listingRepository;
+        this.reviewRepository = reviewRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.bookingRepository = bookingRepository;
+        this.currentUserService = currentUserService;
+        this.modelMapper = modelMapper;
+    }
 
     private String formatSearchParam(String input) {
         if (input == null || input.trim().isEmpty()) {
@@ -49,26 +65,15 @@ public class ListingService {
     }
 
     private ListingDetailsDto mapToDetailsDto(Listing listing) {
-        ListingDetailsDto dto = new ListingDetailsDto();
-        dto.setId(listing.getId());
-        dto.setTitle(listing.getTitle());
-        dto.setDescription(listing.getDescription());
-        dto.setPricePerNight(listing.getPricePerNight());
+        ListingDetailsDto dto = modelMapper.map(listing, ListingDetailsDto.class);
 
         dto.setCity(listing.getAddress().getCity());
         dto.setDistrict(listing.getAddress().getDistrict());
         dto.setPropertyType(listing.getPropertyType().getType());
-        dto.setRoomCount(listing.getRoomCount());
-        dto.setConstructionYear(listing.getConstructionYear());
-        dto.setRules(listing.getRules());
-        dto.setFloor(listing.getFloor());
-        dto.setTotalFloors(listing.getTotalFloors());
 
         dto.setOwnerId(listing.getOwner().getId());
-        dto.setOwnerFullName(listing.getOwner().getFirstName() + " " + listing.getOwner().getLastName());
+        dto.setOwnerFullName(listing.getOwner().getFullName());
         dto.setOwnerRating(listing.getOwner().getOwnerRating());
-
-        dto.setAverageRating(listing.getAverageRating());
 
         List<Review> reviews = reviewRepository.findByListingIdOrderByCreatedAtDesc(listing.getId());
         dto.setReviews(reviews.stream().map(this::mapToReviewDto).collect(Collectors.toList()));
@@ -94,10 +99,8 @@ public class ListingService {
     }
 
     private ReviewDto mapToReviewDto(Review review) {
-        ReviewDto dto = new ReviewDto();
+        ReviewDto dto = modelMapper.map(review, ReviewDto.class);
         dto.setGuestName(review.getGuest().getFirstName());
-        dto.setRating(review.getRating());
-        dto.setComment(review.getComment());
 
         if (review.getCreatedAt() != null) {
             dto.setReviewDate(review.getCreatedAt().toLocalDate());
@@ -153,12 +156,11 @@ public class ListingService {
     }
 
     private ListingSummaryDto mapToDto(Listing listing) {
-        ListingSummaryDto dto = new ListingSummaryDto();
-        dto.setId(listing.getId());
-        dto.setTitle(listing.getTitle());
+        ListingSummaryDto dto = modelMapper.map(listing, ListingSummaryDto.class);
+
         String desc = listing.getDescription();
         dto.setDescription(desc != null && desc.length() > 100 ? desc.substring(0, 100) + "..." : desc);
-        dto.setPricePerNight(listing.getPricePerNight());
+
         if (listing.getAddress() != null) {
             dto.setCity(listing.getAddress().getCity());
             dto.setDistrict(listing.getAddress().getDistrict());

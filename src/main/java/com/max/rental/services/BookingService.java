@@ -13,8 +13,9 @@ import com.max.rental.repositories.BookingRepository;
 import com.max.rental.repositories.ListingRepository;
 import com.max.rental.repositories.ReviewRepository;
 import com.max.rental.security.CurrentUserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
@@ -29,18 +30,29 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class BookingService {
 
-    private static final BigDecimal SERVICE_FEE_RATE = new BigDecimal("0.05"); // 5% сервисный сбор
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+    private static final BigDecimal SERVICE_FEE_RATE = new BigDecimal("0.05");
 
     private final BookingRepository bookingRepository;
     private final ListingRepository listingRepository;
     private final ReviewRepository reviewRepository;
     private final CurrentUserService currentUserService;
+    private final ModelMapper modelMapper;
 
+    public BookingService(BookingRepository bookingRepository,
+                          ListingRepository listingRepository,
+                          ReviewRepository reviewRepository,
+                          CurrentUserService currentUserService,
+                          ModelMapper modelMapper) {
+        this.bookingRepository = bookingRepository;
+        this.listingRepository = listingRepository;
+        this.reviewRepository = reviewRepository;
+        this.currentUserService = currentUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @Transactional
     @Caching(evict = {
@@ -159,12 +171,7 @@ public class BookingService {
     }
 
     private BookingHistoryDto mapToHistoryDto(Booking booking) {
-        BookingHistoryDto dto = new BookingHistoryDto();
-        dto.setId(booking.getId());
-        dto.setStartDate(booking.getStartDate());
-        dto.setEndDate(booking.getEndDate());
-        dto.setTotalPrice(booking.getTotalPrice());
-        dto.setStatus(booking.getStatus());
+        BookingHistoryDto dto = modelMapper.map(booking, BookingHistoryDto.class);
 
         Listing listing = booking.getListing();
         dto.setListingId(listing.getId());

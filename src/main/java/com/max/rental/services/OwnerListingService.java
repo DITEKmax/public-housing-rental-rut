@@ -16,8 +16,9 @@ import com.max.rental.repositories.BookingRepository;
 import com.max.rental.repositories.ListingRepository;
 import com.max.rental.repositories.PropertyTypeRepository;
 import com.max.rental.security.CurrentUserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
@@ -31,15 +32,28 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class OwnerListingService {
+
+    private static final Logger log = LoggerFactory.getLogger(OwnerListingService.class);
 
     private final ListingRepository listingRepository;
     private final PropertyTypeRepository propertyTypeRepository;
     private final BookingRepository bookingRepository;
     private final CurrentUserService currentUserService;
+    private final ModelMapper modelMapper;
+
+    public OwnerListingService(ListingRepository listingRepository,
+                               PropertyTypeRepository propertyTypeRepository,
+                               BookingRepository bookingRepository,
+                               CurrentUserService currentUserService,
+                               ModelMapper modelMapper) {
+        this.listingRepository = listingRepository;
+        this.propertyTypeRepository = propertyTypeRepository;
+        this.bookingRepository = bookingRepository;
+        this.currentUserService = currentUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
@@ -225,11 +239,8 @@ public class OwnerListingService {
     }
 
     private OwnerListingDto mapToOwnerDto(Listing listing) {
-        OwnerListingDto dto = new OwnerListingDto();
-        dto.setId(listing.getId());
-        dto.setTitle(listing.getTitle());
-        dto.setDescription(listing.getDescription());
-        dto.setPricePerNight(listing.getPricePerNight());
+        OwnerListingDto dto = modelMapper.map(listing, OwnerListingDto.class);
+
         if (listing.getAddress() != null) {
             dto.setCity(listing.getAddress().getCity());
             dto.setDistrict(listing.getAddress().getDistrict());
@@ -237,14 +248,7 @@ public class OwnerListingService {
         if (listing.getPropertyType() != null) {
             dto.setPropertyType(listing.getPropertyType().getType());
         }
-        dto.setRoomCount(listing.getRoomCount());
-        dto.setFloor(listing.getFloor());
-        dto.setTotalFloors(listing.getTotalFloors());
-        dto.setConstructionYear(listing.getConstructionYear());
-        dto.setRules(listing.getRules());
-        dto.setStatus(listing.getStatus());
-        dto.setAverageRating(listing.getAverageRating());
-        dto.setCreatedAt(listing.getCreatedAt());
+
         if (listing.getBookings() != null) {
             dto.setTotalBookings(listing.getBookings().size());
             dto.setActiveBookings((int) listing.getBookings().stream()
@@ -258,40 +262,29 @@ public class OwnerListingService {
     }
 
     private ListingEditDto mapToEditDto(Listing listing) {
-        ListingEditDto dto = new ListingEditDto();
-        dto.setId(listing.getId());
-        dto.setTitle(listing.getTitle());
-        dto.setDescription(listing.getDescription());
-        dto.setPricePerNight(listing.getPricePerNight());
-        if (listing.getPropertyType() != null) dto.setPropertyType(listing.getPropertyType().getType());
+        ListingEditDto dto = modelMapper.map(listing, ListingEditDto.class);
+
+        if (listing.getPropertyType() != null) {
+            dto.setPropertyType(listing.getPropertyType().getType());
+        }
         if (listing.getAddress() != null) {
             dto.setCity(listing.getAddress().getCity());
             dto.setDistrict(listing.getAddress().getDistrict());
         }
-        dto.setRoomCount(listing.getRoomCount());
-        dto.setFloor(listing.getFloor());
-        dto.setTotalFloors(listing.getTotalFloors());
-        dto.setConstructionYear(listing.getConstructionYear());
-        dto.setRules(listing.getRules());
         dto.setStatus(listing.getStatus().name());
+
         return dto;
     }
 
     private OwnerBookingDto mapToOwnerBookingDto(Booking booking) {
-        OwnerBookingDto dto = new OwnerBookingDto();
-        dto.setId(booking.getId());
-        dto.setStartDate(booking.getStartDate());
-        dto.setEndDate(booking.getEndDate());
-        dto.setTotalPrice(booking.getTotalPrice());
-        dto.setStatus(booking.getStatus());
-        dto.setCreatedAt(booking.getCreatedAt());
+        OwnerBookingDto dto = modelMapper.map(booking, OwnerBookingDto.class);
 
         dto.setNights(ChronoUnit.DAYS.between(booking.getStartDate(), booking.getEndDate()));
 
         User renter = booking.getRenter();
         if (renter != null) {
             dto.setRenterId(renter.getId());
-            dto.setRenterName(renter.getFirstName() + " " + renter.getLastName());
+            dto.setRenterName(renter.getFullName());
             dto.setRenterEmail(renter.getEmail());
             dto.setRenterPhone(renter.getPhone());
         }
@@ -299,11 +292,42 @@ public class OwnerListingService {
         return dto;
     }
 
-    @lombok.Data
     public static class OwnerStatsDto {
         private long totalListings;
         private long activeListings;
         private long draftListings;
         private long inactiveListings;
+
+        public long getTotalListings() {
+            return totalListings;
+        }
+
+        public void setTotalListings(long totalListings) {
+            this.totalListings = totalListings;
+        }
+
+        public long getActiveListings() {
+            return activeListings;
+        }
+
+        public void setActiveListings(long activeListings) {
+            this.activeListings = activeListings;
+        }
+
+        public long getDraftListings() {
+            return draftListings;
+        }
+
+        public void setDraftListings(long draftListings) {
+            this.draftListings = draftListings;
+        }
+
+        public long getInactiveListings() {
+            return inactiveListings;
+        }
+
+        public void setInactiveListings(long inactiveListings) {
+            this.inactiveListings = inactiveListings;
+        }
     }
 }

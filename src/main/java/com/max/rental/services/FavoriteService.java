@@ -6,8 +6,9 @@ import com.max.rental.models.entities.Listing;
 import com.max.rental.repositories.FavoriteRepository;
 import com.max.rental.repositories.ListingRepository;
 import com.max.rental.security.CurrentUserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +17,25 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class FavoriteService {
+
+    private static final Logger log = LoggerFactory.getLogger(FavoriteService.class);
 
     private final FavoriteRepository favoriteRepository;
     private final ListingRepository listingRepository;
     private final CurrentUserService currentUserService;
+    private final ModelMapper modelMapper;
+
+    public FavoriteService(FavoriteRepository favoriteRepository,
+                           ListingRepository listingRepository,
+                           CurrentUserService currentUserService,
+                           ModelMapper modelMapper) {
+        this.favoriteRepository = favoriteRepository;
+        this.listingRepository = listingRepository;
+        this.currentUserService = currentUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @Transactional
     public void addToFavorites(Long listingId) {
@@ -105,7 +117,8 @@ public class FavoriteService {
         dto.setAddedAt(favorite.getCreatedAt());
 
         listingRepository.findById(favorite.getListingId()).ifPresent(listing -> {
-            dto.setTitle(listing.getTitle());
+            FavoriteListingDto listingDto = modelMapper.map(listing, FavoriteListingDto.class);
+            dto.setTitle(listingDto.getTitle());
             dto.setDescription(listing.getDescription());
             dto.setPricePerNight(listing.getPricePerNight());
             dto.setAverageRating(listing.getAverageRating());

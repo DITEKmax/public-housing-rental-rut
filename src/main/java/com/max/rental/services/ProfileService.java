@@ -10,23 +10,37 @@ import com.max.rental.repositories.BookingRepository;
 import com.max.rental.repositories.FavoriteRepository;
 import com.max.rental.repositories.UserRepository;
 import com.max.rental.security.CurrentUserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ProfileService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProfileService.class);
 
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final FavoriteRepository favoriteRepository;
     private final CurrentUserService currentUserService;
+    private final ModelMapper modelMapper;
+
+    public ProfileService(UserRepository userRepository,
+                          BookingRepository bookingRepository,
+                          FavoriteRepository favoriteRepository,
+                          CurrentUserService currentUserService,
+                          ModelMapper modelMapper) {
+        this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.currentUserService = currentUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @Transactional(readOnly = true)
     public ProfileDto getProfile() {
@@ -67,19 +81,11 @@ public class ProfileService {
     }
 
     private ProfileDto mapToProfileDto(User user) {
-        ProfileDto dto = new ProfileDto();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setPhone(user.getPhone());
+        ProfileDto dto = modelMapper.map(user, ProfileDto.class);
 
         String role = user.getRoles().isEmpty() ? "GUEST" :
                 user.getRoles().get(0).getName().name();
         dto.setRole(role);
-
-        dto.setOwnerRating(user.getOwnerRating());
-        dto.setCreatedAt(user.getCreatedAt());
 
         dto.setTotalBookings(bookingRepository.findAllByRenterId(user.getId()).size());
         dto.setFavoritesCount(favoriteRepository.countByRenterId(user.getId()));
@@ -88,12 +94,7 @@ public class ProfileService {
     }
 
     private BookingHistoryDto mapToBookingHistoryDto(Booking booking) {
-        BookingHistoryDto dto = new BookingHistoryDto();
-        dto.setId(booking.getId());
-        dto.setStartDate(booking.getStartDate());
-        dto.setEndDate(booking.getEndDate());
-        dto.setTotalPrice(booking.getTotalPrice());
-        dto.setStatus(booking.getStatus());
+        BookingHistoryDto dto = modelMapper.map(booking, BookingHistoryDto.class);
 
         Listing listing = booking.getListing();
         dto.setListingTitle(listing.getTitle());

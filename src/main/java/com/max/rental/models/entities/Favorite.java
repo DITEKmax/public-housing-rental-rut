@@ -1,17 +1,11 @@
 package com.max.rental.models.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "favorites")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @IdClass(FavoriteId.class)
 public class Favorite {
 
@@ -34,13 +28,64 @@ public class Favorite {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    public Favorite() {
     }
 
     public Favorite(Long renterId, Long listingId) {
         this.renterId = renterId;
         this.listingId = listingId;
+    }
+
+    public Favorite(Long renterId, Long listingId, User renter, Listing listing, LocalDateTime createdAt) {
+        this.renterId = renterId;
+        this.listingId = listingId;
+        this.renter = renter;
+        this.listing = listing;
+        this.createdAt = createdAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getRenterId() {
+        return renterId;
+    }
+
+    public void setRenterId(Long renterId) {
+        this.renterId = renterId;
+    }
+
+    public Long getListingId() {
+        return listingId;
+    }
+
+    public void setListingId(Long listingId) {
+        this.listingId = listingId;
+    }
+
+    public User getRenter() {
+        return renter;
+    }
+
+    public void setRenter(User renter) {
+        this.renter = renter;
+    }
+
+    public Listing getListing() {
+        return listing;
+    }
+
+    public void setListing(Listing listing) {
+        this.listing = listing;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
